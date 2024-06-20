@@ -1,0 +1,3 @@
+/app/build.cmake/CMakeFiles/server.dir
+/app/build.cmake/CMakeFiles/edit_cache.dir
+/app/build.cmake/CMakeFiles/rebuild_cache.dir

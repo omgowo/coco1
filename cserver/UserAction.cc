@@ -24,7 +24,9 @@ const string RecipeMode = "salad";
 
 // A template GLOBAL VARIABLE vector to store operations
 // Feel free to modify this data structure! (or create your own to use)
-vector<string> operations;
+// vector<string> operations;
+#include <queue>
+queue<char> operations;
 
 // A template map to store the position of each counter
 // Question: How do you extend this map to store more than one position for a counter?
@@ -46,25 +48,27 @@ const map<Counter, pair<int, int>> counterPosition = {
     { NormalCounter, {8, 20} }
 };
 
-const map<Counter, string> counterDirection = {
-    { BreadCounter, "w" },
-    { CabbageCounter, "s" },
-    { CheeseBlockCounter, "w" },
-    { TomatoCounter, "s" },
-    { RawPattyCounter, "w" },
-    { StoveCounter, "w" },
-    { PlatesCounter, "d" },
-    { TrashCounter, "d" },
-    { DeliveryCounter, "d" },
+const map<Counter, char> counterDirection = {
+    { BreadCounter, 'w' },
+    { CabbageCounter, 's' },
+    { CheeseBlockCounter, 'w' },
+    { TomatoCounter, 's' },
+    { RawPattyCounter, 'w' },
+    { StoveCounter, 'w' },
+    { PlatesCounter, 'd' },
+    { TrashCounter, 'd' },
+    { DeliveryCounter, 'd' },
 
     // There are 2 cutting counters, this is only one of it
-    { CuttingCounter, "s" },
+    { CuttingCounter, 's' },
     // There are so many normal counters, this is only one of it
-    { NormalCounter, "d" }
+    { NormalCounter, 'd' }
 };
 
 void DefaultInitialize();
 void DefaultSendOperation();
+void BurgerInitialize();
+void Burger~SendOperation();
 
 // Init the game (DO NOT MODIFY THIS FUNCTION)
 void UserAction::InitGame() {
@@ -79,31 +83,49 @@ void UserAction::Initialize() {
     // Feel free to modify this function.
     // DefaultInitialize() will make you a MEGABurger!
     cout << "Initializing the game..." << endl;
-    DefaultInitialize();
+    BurgerInitialize();
 }
 
 // Main Function of you game logic
 void UserAction::SendOperation() {
     // TODO: Implement your gaming logic here
     // DefaultSendOperation() will make you a MEGABurger!
-    DefaultSendOperation();
+    BurgerSendOperation();
 }
 
 
 // -- Moving series functions Below -- //
 
 void MovePointToPoint(pair<int, int> from, pair<int, int> to, GameController& controller) {
-    // TODO: Move from one point to another point
+    char xdir = from.first < to.first ? 's' : 'w';
+    char ydir = from.second < to.second ? 'd' : 'a';
+    
+    int xcnt = abs(from.first - to.first);
+    int ycnt = abs(from.second - to.second);
+
+    for (i = 0; i < xcnt; i ++) {
+        operations.push(xdir);
+    }
+    for (i = 0; i < ycnt; i ++) {
+        operations.push(ydir);
+    }
 }
 
 void MovePointToCounter(pair<int, int> fromPoint, Counter toCounter, GameController& controller) {
-    // TODO: Move from one point to a counter
     pair<int, int> targetPosition = counterPosition.at(toCounter);
+    MovePointToPoint(fromPoint, targetPosition);
 
 }
 
 void MoveCounterToCounter(Counter from, Counter to, GameController& controller) {
-    // TODO: Move from one counter to another counter
+    pair<int, int> fromposition = counterPosition.at(from);
+    MovePointToCounter(fromposition, to);
+}
+
+void MoveCounterToCounterAndInteract(Counter from, Counter to, GameController& controller) {
+    MoveCounterToCounter(from, to);
+    operations.push(counterDirection.at(to));
+    operations.push('e');
 }
 
 // -- Moving series functions Above -- //
@@ -150,6 +172,15 @@ Recipe GetNextOrder() {
 
 void CutIngredient(int times, GameController& controller) {
     // TODO: Cut the Ingredient for times
+    for (int i = 0; i < times; i ++) {
+        operations.push('f');
+    }
+}
+void Wait(int times, GameController& controller) {
+    // TODO: Wait for times
+    for (int i = 0; i < times; i ++) {
+        continue;
+    }
 }
 
 // -- Miscallaneous functions Above -- //
@@ -197,13 +228,48 @@ void SimpleExample() {
     // ... Do The Rest By Yourself !
 }
 
-void MakeBurger(GameController& controller) {}
+void MakeBurger(GameController& controller) {
+    MoveCounterToCounter(controller.GetPlayerPosition(), CheeseBlockCounter);
+    operations.push('e');
+    MoveCounterToCounterAndInteract(CheeseBlockCounter, CuttingCounter);
+    CutIngredient(3);
+    MoveCounterToCounterAndInteract(CuttingCounter, RawPattyCounter);
+    operations.push('e');
+    MoveCounterToCounterAndInteract(RawPattyCounter, StoveCounter);
+    operations.push('e');
+    Wait(20);
+    MoveCounterToCounterAndInteract(StoveCounter, PlatesCounter);
+    operations.push('e');
+    MoveCounterToCounterAndInteract(PlatesCounter, StoveCounter);
+    Wait(30);
+    operations.push('e');
+    MoveCounterToCounterAndInteract(StoveCounter, CuttingCounter);
+    operations.push('e');
+    MoveCounterToCounterAndInteract(CuttingCounter, DeliveryCounter);
+    operations.push('e');
+
+}   
 void MakeCheeseBurger(GameController& controller) {}
 void MakeMegaBurger(GameController& controller) {}
 
 // -- Pipeline Funtions Below -- //
 
 // -- Default Series Function Below -- //
+
+void SaladSendOperation() {
+    char s = "";
+    if (!operations.empty()) {
+        Recipe nextRecipe = GetNextOrder();
+
+        if (nextRecipe == Burger) MakeBurger();
+    }
+    if (s == "w") controller.MoveUp();
+    if (s == "s") controller.MoveDown();
+    if (s == "a") controller.MoveLeft();
+    if (s == "d") controller.MoveRight();
+    if (s == "e") controller.Interact();
+    if (s == "f") controller.InteractSpecial();
+}
 
 // SendOperation function template, free MEGABurger for you!
 void DefaultSendOperation() {
@@ -213,12 +279,16 @@ void DefaultSendOperation() {
         operations.pop_back();
         cout << "Operation: " << s << endl;
     }
-    if (s == "w") controller.MoveUp();
-    if (s == "s") controller.MoveDown();
-    if (s == "a") controller.MoveLeft();
-    if (s == "d") controller.MoveRight();
-    if (s == "e") controller.Interact();
-    if (s == "f") controller.InteractSpecial();
+    if (s == 'w') controller.MoveUp();
+    if (s == 's') controller.MoveDown();
+    if (s == 'a') controller.MoveLeft();
+    if (s == 'd') controller.MoveRight();
+    if (s == 'e') controller.Interact();
+    if (s == 'f') controller.InteractSpecial();
+}
+
+void BurgerInitialize() {
+    while (!operations.empty()) operations.pop();
 }
 
 void DefaultInitialize() {
