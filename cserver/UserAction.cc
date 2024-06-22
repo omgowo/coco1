@@ -65,6 +65,8 @@ const map<Counter, string> counterDirection = {
 
 void DefaultInitialize();
 void DefaultSendOperation();
+void MegaBurgerInitialize();
+void MegaBurger~SendOperation();
 
 // Init the game (DO NOT MODIFY THIS FUNCTION)
 void UserAction::InitGame() {
@@ -93,17 +95,35 @@ void UserAction::SendOperation() {
 // -- Moving series functions Below -- //
 
 void MovePointToPoint(pair<int, int> from, pair<int, int> to, GameController& controller) {
-    // TODO: Move from one point to another point
+    char xdir = from.first < to.first ? 's' : 'w';
+    char ydir = from.second < to.second ? 'd' : 'a';
+    
+    int xcnt = abs(from.first - to.first);
+    int ycnt = abs(from.second - to.second);
+
+    for (i = 0; i < xcnt; i ++) {w
+        operations.push(xdir);
+    }
+    for (i = 0; i < ycnt; i ++) {
+        operations.push(ydir);
+    }
 }
 
 void MovePointToCounter(pair<int, int> fromPoint, Counter toCounter, GameController& controller) {
-    // TODO: Move from one point to a counter
     pair<int, int> targetPosition = counterPosition.at(toCounter);
+    MovePointToPoint(fromPoint, targetPosition);
 
 }
 
 void MoveCounterToCounter(Counter from, Counter to, GameController& controller) {
-    // TODO: Move from one counter to another counter
+    pair<int, int> fromposition = counterPosition.at(from);
+    MovePointToCounter(fromposition, to);
+}
+
+void MoveCounterToCounterAndInteract(Counter from, Counter to, GameController& controller) {
+    MoveCounterToCounter(from, to);
+    operations.push(counterDirection.at(to));
+    operations.push('e');
 }
 
 // -- Moving series functions Above -- //
@@ -150,6 +170,15 @@ Recipe GetNextOrder() {
 
 void CutIngredient(int times, GameController& controller) {
     // TODO: Cut the Ingredient for times
+    for (int i = 0; i < times; i ++) {
+        operations.push('f');
+    }
+}
+void Wait(int times, GameController& controller) {
+    // TODO: Wait for times
+    for (int i = 0; i < times; i ++) {
+        continue;
+    }
 }
 
 // -- Miscallaneous functions Above -- //
@@ -199,7 +228,44 @@ void SimpleExample() {
 
 void MakeBurger(GameController& controller) {}
 void MakeCheeseBurger(GameController& controller) {}
-void MakeMegaBurger(GameController& controller) {}
+void MakeMegaBurger(GameController& controller) {
+    MovePointToCounter(controller.GetPlayerPosition(), SaladBlockCounter);
+    operations.push('e');
+    MoveCounterToCounter(SaladBlockCounter, Block811);
+    operations.push('e');
+    MoveCounterToCounter(Block811, TomatoBlockCounter);
+    operations.push('e');
+    MoveCounterToCounterAndInteract(TomatoBlockCounter, LowerCuttingCounter);
+    CutIngredient(3);
+    MoveCounterToCounterAndInteract(LowerCuttingCounter, BreadBlockCounter);
+    CutIngredient(3);
+    MoveCounterToCounter(BreadBlockCounter, Block011);
+    operations.push('e');
+    MoveCounterToCounter(Block011, CheeseBlockCounter);
+    operations.push('e');
+    MoveCounterToCounterAndInteract(CheeseBlockCounter, UpperCuttingCounter);
+    CutIngredient(3);
+    MoveCounterToCounterAndInteract(UpperCuttingCounter, RawPattyCounter);
+    operations.push('e');
+    MoveCounterToCounterAndInteract(RawPattyCounter, StoveCounter);
+    operations.push('e');
+    Wait(20);
+    MoveCounterToCounterAndInteract(StoveCounter, PlatesCounter);
+    operations.push('e');
+    MoveCounterToCounterAndInteract(PlatesCounter, StoveCounter);
+    Wait(30);
+    operations.push('e');
+    MoveCounterToCounterAndInteract(StoveCounter, UpperCuttingCounter);
+    operations.push('e');
+    MoveCounterToCounterAndInteract(UpperCuttingCounter, Block011);
+    operations.push('e');
+    MoveCounterToCounterAndInteract(Block011, LowerCuttingCounter);
+    operations.push('e');
+    MoveCounterToCounterAndInteract(LowerCuttingCounter, Block811);
+    operations.push('e');
+    MoveCounterToCounterAndInteract(Block811, DeliveryCounter);
+    operations.push('e');
+}
 
 // -- Pipeline Funtions Below -- //
 
