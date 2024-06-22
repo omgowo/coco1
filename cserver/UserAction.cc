@@ -41,9 +41,11 @@ const map<Counter, pair<int, int>> counterPosition = {
     { DeliveryCounter, {1, 20} },
 
     // There are 2 cutting counters, this is only one of it
-    { CuttingCounter, {8, 15} },
+    { UpperCuttingCounter, {0, 15} },
+    { LowerCuttingCounter, {8, 15} },
     // There are so many normal counters, this is only one of it
-    { NormalCounter, {8, 20} }
+    { NormalCounter011, {0, 11} },
+    { NormalCounter811, {8, 11} }
 };
 
 const map<Counter, string> counterDirection = {
@@ -229,19 +231,19 @@ void SimpleExample() {
 void MakeBurger(GameController& controller) {}
 void MakeCheeseBurger(GameController& controller) {}
 void MakeMegaBurger(GameController& controller) {
-    MovePointToCounter(controller.GetPlayerPosition(), SaladBlockCounter);
+    MovePointToCounter(controller.GetPlayerPosition(), CabbageCounter);
     operations.push('e');
-    MoveCounterToCounter(SaladBlockCounter, Block811);
+    MoveCounterToCounter(CabbageCounter, NormalCounter811);
     operations.push('e');
-    MoveCounterToCounter(Block811, TomatoBlockCounter);
+    MoveCounterToCounter(NormalCounter811, TomatoBlockCounter);
     operations.push('e');
     MoveCounterToCounterAndInteract(TomatoBlockCounter, LowerCuttingCounter);
     CutIngredient(3);
     MoveCounterToCounterAndInteract(LowerCuttingCounter, BreadBlockCounter);
     CutIngredient(3);
-    MoveCounterToCounter(BreadBlockCounter, Block011);
+    MoveCounterToCounter(BreadBlockCounter, NormalCounter011);
     operations.push('e');
-    MoveCounterToCounter(Block011, CheeseBlockCounter);
+    MoveCounterToCounter(NormalCounter011, CheeseBlockCounter);
     operations.push('e');
     MoveCounterToCounterAndInteract(CheeseBlockCounter, UpperCuttingCounter);
     CutIngredient(3);
@@ -257,13 +259,13 @@ void MakeMegaBurger(GameController& controller) {
     operations.push('e');
     MoveCounterToCounterAndInteract(StoveCounter, UpperCuttingCounter);
     operations.push('e');
-    MoveCounterToCounterAndInteract(UpperCuttingCounter, Block011);
+    MoveCounterToCounterAndInteract(UpperCuttingCounter, NormalCounter011);
     operations.push('e');
-    MoveCounterToCounterAndInteract(Block011, LowerCuttingCounter);
+    MoveCounterToCounterAndInteract(NormalCounter011, LowerCuttingCounter);
     operations.push('e');
-    MoveCounterToCounterAndInteract(LowerCuttingCounter, Block811);
+    MoveCounterToCounterAndInteract(LowerCuttingCounter, NormalCounter811);
     operations.push('e');
-    MoveCounterToCounterAndInteract(Block811, DeliveryCounter);
+    MoveCounterToCounterAndInteract(NormalCounter811, DeliveryCounter);
     operations.push('e');
 }
 
