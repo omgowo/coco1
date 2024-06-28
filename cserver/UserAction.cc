@@ -16,8 +16,9 @@ GameController& controller = GameController::getInstance("default");
 
 // TODO: Choose your recipe mode
 // you may want to have different strategy for different recipe mode
-
-const string RecipeMode = "salad";
+if(RecipeMap == "Salad"){
+   const string RecipeMode = "salad";
+}else if(
 const string RecipeMode = "salad_cheeseburger";
 const string RecipeMode = "all";
 
