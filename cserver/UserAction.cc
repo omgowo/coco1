@@ -18,9 +18,15 @@ GameController& controller = GameController::getInstance("default");
 // you may want to have different strategy for different recipe mode
 if(RecipeMap == "Salad"){
    const string RecipeMode = "salad";
-}else if(
-const string RecipeMode = "salad_cheeseburger";
-const string RecipeMode = "all";
+}
+else if(RecipeMap == "Salad"){
+   const string RecipeMode = "salad_cheeseburger";
+}
+else{
+   const string RecipeMode = "all";
+}
+
+
 
 
 // A template GLOBAL VARIABLE vector to store operations
