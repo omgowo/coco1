@@ -4,7 +4,7 @@
 #include <string>
 #include "GameController.h"
 #include "UserAction.h"
-
+#include "queue"
 using namespace wfrest;
 using namespace ctl;
 using namespace std;
@@ -16,15 +16,15 @@ GameController& controller = GameController::getInstance("default");
 
 // TODO: Choose your recipe mode
 // you may want to have different strategy for different recipe mode
-
+/*
 const string RecipeMode = "salad";
-// const string RecipeMode = "salad_cheeseburger";
-// const string RecipeMode = "all";
-
+//string RecipeMode = "salad_cheeseburger";
+//const string RecipeMode = "all";
+*/
 
 // A template GLOBAL VARIABLE vector to store operations
 // Feel free to modify this data structure! (or create your own to use)
-vector<string> operations;
+queue<char> operations;
 
 // A template map to store the position of each counter
 // Question: How do you extend this map to store more than one position for a counter?
@@ -68,7 +68,10 @@ const map<Counter, string> counterDirection = {
 
 void DefaultInitialize();
 void DefaultSendOperation();
-
+void MakeSalad();
+void MakeBurger();
+void MakeCheeseBurger();
+void MakeMegaBurger();
 // Init the game (DO NOT MODIFY THIS FUNCTION)
 void UserAction::InitGame() {
     Initialize();
@@ -82,7 +85,7 @@ void UserAction::Initialize() {
     // Feel free to modify this function.
     // DefaultInitialize() will make you a MEGABurger!
     cout << "Initializing the game..." << endl;
-    DefaultInitialize();
+    //DefaultInitialize();
 }
 
 // Main Function of you game logic
@@ -90,9 +93,29 @@ void UserAction::SendOperation() {
     // TODO: Implement your gaming logic here
     // DefaultSendOperation() will make you a MEGABurger!
     //DefaultSendOperation();
-    SaladSendOperation();
+    OMGOWOSendOperationcode();
 }
+void OMGOWOSendOperationcode(){
+    string s = "";
+        if (operations.empty()) {
+            Recipe nextRecipe = GetNextOrder();
+            if(nextRecipe == Salad) MakeSalad();
+            else if(nextRecipe == Burger) MakeBurger();
+            else if(nextRecipe == CheeseBurger) MakeCheeseBurger();
+            else MakeMegaBurger();
+            return;
+        }
 
+        s=operations.front();
+        operations.pop();
+
+        if (s == "w") controller.MoveUp();
+        else if (s == "s") controller.MoveDown();
+        else if (s == "a") controller.MoveLeft();
+        else if (s == "d") controller.MoveRight();
+        else if (s == "e") controller.Interact();
+        else if (s == "f") controller.InteractSpecial();
+}
 
 // -- Moving series functions Below -- //
 
@@ -115,7 +138,7 @@ void MovePointToPoint(pair<int, int> from, pair<int, int> to, GameController& co
 void MovePointToCounter(pair<int, int> fromPoint, Counter toCounter, GameController& controller) {
     // TODO: Move from one point to a counter
     pair<int, int> targetPosition = counterPosition.at(toCounter);
-    MovePointToPoint(fromPoint,targetPosition);
+    MovePointToPoint(fromPoint,targetPosition,controller);
 
 }
 
@@ -123,10 +146,21 @@ void MoveCounterToCounter(Counter from, Counter to, GameController& controller) 
     // TODO: Move from one counter to another counter
     pair<int, int> fromPosition = counterPosition.at(from);
     pair<int, int> toPosition = counterPosition.at(to);
-    MovePointToPoint(fromPosition,toPosition);
+    MovePointToPoint(fromPosition,toPosition,controller);
     controller.getPlayerPosition();
 
 }
+void MoveCounterToCounterAndInteract(Counter from, Counter to){
+    MoveCounterToCounter(from,to);
+    operations.push(counterDirection.at(to));
+    operations.push('e');
+}
+void MovePointToCounterAndInteract(pair <int,int> from, Counter toCounter){
+    MovePointToCounter(from,toCounter);
+    operations.push(counterDirection.at(toCounter));
+    operations.push('e');
+}
+
 void Wait(int times, GameController& controller) {
     // TODO: Wait for times
     for (int i = 0; i < times; i ++) {
@@ -156,15 +190,19 @@ Recipe SaladCheeseburgerModeStrategy() {
 Recipe AllRecipeModeStrategy() {
     // TODO: Implement your all recipe mode strategy here
     // Below is a simple example, feel free to change it
-
+    vector<Order> orderList = controller.GetOrderList();
+    if (orderList.empty()) {
+        return Salad;
+    }
+    return orderList[0].recipe;
     //return MegaBurger;
 }
 
 Recipe GetNextOrder() {
     // Return the next order based on the Recipe Mode
-    if (RecipeMode == "salad") {
+    if (controller.GetRecipeMode() == "Salad") {
         return SaladModeStrategy();
-    } else if (RecipeMode == "salad_cheeseburger") {
+    } else if (controller.GetRecipeMode() == "SaladAndCheeseBurger") {
         return SaladCheeseburgerModeStrategy();
     } else {
         return AllRecipeModeStrategy();
@@ -182,7 +220,6 @@ void CutIngredient(int times, GameController& controller) {
 // -- Miscallaneous functions Above -- //
 
 // -- Pipeline Funtions Below -- //
-controller.GetPlayer
 // You are welcome to change the function prototype
 // Like changing the return type or adding more parameters
 void MakeSalad(GameController& controller) {
@@ -319,40 +356,3 @@ void DefaultSendOperation() {
     if (s == "e") controller.Interact();
     if (s == "f") controller.InteractSpecial();
 }
-/*
-void DefaultInitialize() {
-    operations = {
-        "w", "w", "w", "w", "e", "d", "d", "d", "d", "w", "e", "f", "f", "f", // grab cheese and cut it
-        "d", "d", "d", "d", "d", "d", "w", "e", "a", "w", "e", "s", "s", "d", "e", // fry meat and grab plate
-        "a", "a", "a", "a", "w", "w", "e", "d", "w", "e", // grab cheese slices and cooked meat
-        "e", "e", "e", "e", "e", "e", "e", "e", "e", "e", // wait for the meat to be cooked
-        "e", "e", "e", "e", "e", "e", "e", "e", "e", "e", // wait for the meat to be cooked
-        "e", "e", "e", "e", "e", "e", "e", "e", "e", "e", // wait for the meat to be cooked
-        "e", "e", "e", "e", "e", "e", "e", "e", "e", "e", // wait for the meat to be cooked
-        "e", "e", "e", "e", "e", "e", "e", "e", "e", "e", // wait for the meat to be cooked
-        "e", "e", "e", "e", "e", "e", "e", "e", "e", "e", // wait for the meat to be cooked
-        "e", "e", "e", "e", "e", "e", "e", "e", "e", "e", // wait for the meat to be cooked
-        "e", "e", "e", "e", "e", "e", "e", "e", "e", "e", // wait for the meat to be cooked
-        "e", "e", "e", "e", "e", "e", "e", "e", "e", "e", // wait for the meat to be cooked
-        "e", "e", "e", "e", "e", "e", "e", "e", "e", "e", // wait for the meat to be cooked
-        "e", "e", "e", "e", "e", "e", "e", "e", "e", "e", // wait for the meat to be cooked
-        "e", "e", "e", "e", "e", "e", "e", "e", "e", "e", // wait for the meat to be cooked
-        "e", "e", "e", "e", "e", "e", "e", "e", "e", "e", // wait for the meat to be cooked
-        "a", "a", "a", "a", "w", "e", // put the plate down
-        "s", "s", "s", "s", "s", "s", "s", "s", // move down
-        "a", "a", "a", "a", "a", "a", "s", "e",  // grab tomato
-        "d", "d", "d", "d", "d", "d", "d", "s", "e", "f", "f", "f", // cut tomato
-        "e", "a", "s", "e", "a", "a", "a", "a", "a", "a", "a", "a", "a", "s", "e", // grab lettuce
-        "d", "d", "d", "d", "d", "d", "d", "d", "d", "d", // move to cutting counter
-        "s", "e", "f", "f", "f", "f", "f", // cut lettuce
-        "e", "a", "w", "w", "w", "w", "w", "w", "w", "w", "e", "e", // grab plate
-        "s", "s", "s", "s", "s", "s", "s", "s", // move down
-        "e", "a", "a", "a", "a", "a", "a", "a", "a", "a", "a", "a", "a", // move to bottom left
-        "w", "w", "w", "w", "w", "w", "w", "w", "w", "w", // move to bread counter
-        "d", "w", "e", "a", "w", "e", "d", "w", "e", // grab bread
-        "e", "d", "d", "d", "d", "d", "d", "d", "d", "d", "d", "d", "d", "d", "d",
-        "d", "d", "d", "d", "d", "d", "d", "d", "d", "d", "d", "d", "d", "d", "e" // finish
-    };
-    reverse(operations.begin(), operations.end());
-}
-*/
