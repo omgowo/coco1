@@ -19,7 +19,7 @@ GameController& controller = GameController::getInstance("default");
 if(RecipeMap == "Salad"){
    const string RecipeMode = "salad";
 }
-else if(RecipeMap == "Salad"){
+else if(RecipeMap == "Cheese Burger"){
    const string RecipeMode = "salad_cheeseburger";
 }
 else{
