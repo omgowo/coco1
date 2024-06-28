@@ -42,7 +42,8 @@ const map<Counter, pair<int, int>> counterPosition = {
     { DeliveryCounter, {1, 20} },
 
     // There are 2 cutting counters, this is only one of it
-    { CuttingCounter, {8, 15} },
+    { UpperCuttingCounter, {0, 15} },
+    { LowerCuttingCounter, {8, 15} },
     // There are so many normal counters, this is only one of it
     { NormalCounter, {8, 20} }
 };
@@ -201,30 +202,30 @@ void MakeSalad(GameController& controller) {
         MovePointToCounterAndInteract(controller.GetPlayerPosition(),CabbageCounter);
     // Grab Cabbage
     // Move To Cutting Counter
-    MoveCounterToCounterAndInteract(CabbageCounter,CuttingCounter);
+    MoveCounterToCounterAndInteract(CabbageCounter,LowerCuttingCounter);
     // Cut Cabbage
     CutIngredient(5);
     // Grab Cabbage Slices
     operations.push('e');
     // Move To A Normal Counter
     // Put Down Cabbage Slices
-    MoveCounterToCounterAndInteract(CuttingCounter,NormalCounter);
+    MoveCounterToCounterAndInteract(LowerCuttingCounter,NormalCounter);
     // Move To Tomato Counter
     // Grab Tomato
     MoveCounterToCounterAndInteract(NormalCounter,TomatoCounter);
     // Move To A Cutting Counter
-    MoveCounterToCounterAndInteract(TomatoCounter,CuttingCounter);
+    MoveCounterToCounterAndInteract(TomatoCounter,LowerCuttingCounter);
     // Cut Tomato
     CutIngredient(3);
     // Move To Plate Counter
     // Grab Plate
-    MoveCounterToCounterAndInteract(CuttingCounter, PlatesCounter);
+    MoveCounterToCounterAndInteract(LowerCuttingCounter, PlatesCounter);
     // Move To A Cutting Counter
     // Grab Tomato Slices
-    MoveCounterToCounterAndInteract(PlatesCounter,CuttingCounter);
+    MoveCounterToCounterAndInteract(PlatesCounter,LowerCuttingCounter);
     // Move To A Normal Counter
     // Grab Cabbage Slices
-    MoveCounterToCounterAndInteract(CuttingCounter,NormalCounter);
+    MoveCounterToCounterAndInteract(LowerCuttingCounter,NormalCounter);
     // Move To Delivery Counter
     MoveCounterToCounterAndInteract(NormalCounter,DeliveryCounter);
     // Send Order!
@@ -251,36 +252,36 @@ void MakeCheeseBurger(GameController& controller) {}
 void MakeMegaBurger(GameController& controller) {
     MovePointToCounterAndInteract(controller.GetPlayerPosition(), CabbageCounter);
     
-    MoveCounterToCounterAndInteract(CabbageCounter, NormalCounter);
+    MoveCounterToCounterAndInteract(CabbageCounter, LowerCuttingCounter);
+    CutIngredient(5);
+    operations.push('e');
+    MoveCounterToCounterAndInteract(LowerCuttingCounter, NormalCounter);
     
     MoveCounterToCounterAndInteract(NormalCounter, TomatoBlockCounter);
     
-    MoveCounterToCounterAndInteract(TomatoBlockCounter, CuttingCounter);
-    CutIngredient(3);
-    operations.push('e');
-    MoveCounterToCounterAndInteract(CuttingCounter, BreadBlockCounter);
-    CutIngredient(3);
-    operations.push('e');
+    MoveCounterToCounterAndInteract(TomatoBlockCounter, LowerCuttingCounter);
+    CutIngredient(5);
+    
+    MoveCounterToCounterAndInteract(LowerCuttingCounter, BreadBlockCounter);
+    
     MoveCounterToCounterAndInteract(BreadBlockCounter, NormalCounter);
     
     MoveCounterToCounterAndInteract(NormalCounter, CheeseBlockCounter);
     
-    MoveCounterToCounterAndInteract(CheeseBlockCounter, CuttingCounter);
-    CutIngredient(3);
-    operations.push('e');
-    MoveCounterToCounterAndInteract(CuttingCounter, RawPattyCounter);
+    MoveCounterToCounterAndInteract(CheeseBlockCounter, UpperCuttingCounter);
+    CutIngredient(5);
+    
+    MoveCounterToCounterAndInteract(UpperCuttingCounter, RawPattyCounter);
     
     MoveCounterToCounterAndInteract(RawPattyCounter, StoveCounter);
-    
     Wait(20);
     MoveCounterToCounterAndInteract(StoveCounter, PlatesCounter);
     
     MoveCounterToCounterAndInteract(PlatesCounter, StoveCounter);
     Wait(30);
-    
     MoveCounterToCounterAndInteract(StoveCounter, CuttingCounter);
     
-    MoveCounterToCounterAndInteract(UpperCuttingCounter, NormalCounter);
+    MoveCounterToCounterAndInteract(CuttingCounter, NormalCounter);
     
     MoveCounterToCounterAndInteract(NormalCounter, CuttingCounter);
     
