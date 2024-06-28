@@ -45,7 +45,8 @@ enum Counter {
     TomatoCounter,
 
     // Tool counters
-    CuttingCounter,
+    UpperCuttingCounter,
+    LowerCuttingCounter,
     StoveCounter,
     NormalCounter,
     PlatesCounter,
