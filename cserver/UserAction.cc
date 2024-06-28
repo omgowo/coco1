@@ -18,8 +18,8 @@ GameController& controller = GameController::getInstance("default");
 // you may want to have different strategy for different recipe mode
 
 const string RecipeMode = "salad";
-// const string RecipeMode = "salad_cheeseburger";
-// const string RecipeMode = "all";
+const string RecipeMode = "salad_cheeseburger";
+const string RecipeMode = "all";
 
 
 // A template GLOBAL VARIABLE vector to store operations
