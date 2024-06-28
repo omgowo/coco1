@@ -40,10 +40,11 @@ const map<Counter, pair<int, int>> counterPosition = {
     { TrashCounter, {6, 20} },
     { DeliveryCounter, {1, 20} },
 
-    // There are 2 cutting counters, this is only one of it
-    { CuttingCounter, {8, 15} },
+    { UpperCuttingCounter, {0, 14} },
+    { LowerCuttingCounter, {8, 14} },
     // There are so many normal counters, this is only one of it
-    { NormalCounter, {8, 20} }
+    { UpperNormalCounter, {8, 20} },
+    { LowerNormalCounter, {8, 12} }
 };
 
 const map<Counter, string> counterDirection = {
@@ -58,9 +59,11 @@ const map<Counter, string> counterDirection = {
     { DeliveryCounter, "d" },
 
     // There are 2 cutting counters, this is only one of it
-    { CuttingCounter, "s" },
+    { UpperCuttingCounter, "w" },
+    { LowerCuttingCounter, "s" },
     // There are so many normal counters, this is only one of it
-    { NormalCounter, "d" }
+    { UpperNormalCounter, "w" },
+    { LowerNormalCounter, "s" }
 };
 
 void DefaultInitialize();
@@ -86,7 +89,8 @@ void UserAction::Initialize() {
 void UserAction::SendOperation() {
     // TODO: Implement your gaming logic here
     // DefaultSendOperation() will make you a MEGABurger!
-    DefaultSendOperation();
+    //DefaultSendOperation();
+    SaladSendOperation();
 }
 
 
@@ -94,18 +98,41 @@ void UserAction::SendOperation() {
 
 void MovePointToPoint(pair<int, int> from, pair<int, int> to, GameController& controller) {
     // TODO: Move from one point to another point
+    char xdir = from.first < to.first ? 's' : 'w';
+    char ydir = from.second < to.second ? 'd' : 'a';
+
+    int xcnt = abs(from.first - to.first);
+    int ycnt = abs(from.second - to.second);
+
+    for(int i=0;i<xcnt; i++){
+        operations.push(xdir);
+    }
+      for(int i=0;i<ycnt; i++){
+        operations.push(ydir);
+    }
 }
 
 void MovePointToCounter(pair<int, int> fromPoint, Counter toCounter, GameController& controller) {
     // TODO: Move from one point to a counter
     pair<int, int> targetPosition = counterPosition.at(toCounter);
+    MovePointToPoint(fromPoint,targetPosition);
 
 }
 
 void MoveCounterToCounter(Counter from, Counter to, GameController& controller) {
     // TODO: Move from one counter to another counter
-}
+    pair<int, int> fromPosition = counterPosition.at(from);
+    pair<int, int> toPosition = counterPosition.at(to);
+    MovePointToPoint(fromPosition,toPosition);
+    controller.getPlayerPosition();
 
+}
+void Wait(int times, GameController& controller) {
+    // TODO: Wait for times
+    for (int i = 0; i < times; i ++) {
+        continue;
+    }
+}
 // -- Moving series functions Above -- //
 
 // -- Strategy for different Recipe Mode Below -- //
@@ -130,7 +157,7 @@ Recipe AllRecipeModeStrategy() {
     // TODO: Implement your all recipe mode strategy here
     // Below is a simple example, feel free to change it
 
-    return MegaBurger;
+    //return MegaBurger;
 }
 
 Recipe GetNextOrder() {
@@ -155,33 +182,45 @@ void CutIngredient(int times, GameController& controller) {
 // -- Miscallaneous functions Above -- //
 
 // -- Pipeline Funtions Below -- //
-
+controller.GetPlayer
 // You are welcome to change the function prototype
 // Like changing the return type or adding more parameters
 void MakeSalad(GameController& controller) {
-    // TODO: Salad Making Pipeline
+     // TODO: Salad Making Pipeline
     // Move To Cabbage Counter
+    MovePointToCounterAndInteract(controller.GetPlayerPosition(),CabbageCounter);
     // Grab Cabbage
     // Move To Cutting Counter
+    MoveCounterToCounterAndInteract(CabbageCounter,CuttingCounter);
     // Cut Cabbage
+    CutIngredient(5);
     // Grab Cabbage Slices
+    operations.push('e');
     // Move To A Normal Counter
     // Put Down Cabbage Slices
+    MoveCounterToCounterAndInteract(CuttingCounter,NormalCounter);
     // Move To Tomato Counter
     // Grab Tomato
+    MoveCounterToCounterAndInteract(NormalCounter,TomatoCounter);
     // Move To A Cutting Counter
+    MoveCounterToCounterAndInteract(TomatoCounter,CuttingCounter);
     // Cut Tomato
+    CutIngredient(3);
     // Move To Plate Counter
     // Grab Plate
+    MoveCounterToCounterAndInteract(CuttingCounter, PlatesCounter);
     // Move To A Cutting Counter
     // Grab Tomato Slices
+    MoveCounterToCounterAndInteract(PlatesCounter,CuttingCounter);
     // Move To A Normal Counter
     // Grab Cabbage Slices
+    MoveCounterToCounterAndInteract(CuttingCounter,NormalCounter);
     // Move To Delivery Counter
+    MoveCounterToCounterAndInteract(NormalCounter,DeliveryCounter);
     // Send Order!
 }
 
-void SimpleExample() {
+/*void SimpleExample() {
     // The beginning steps of making a salad
 
     operations.clear();
@@ -195,11 +234,71 @@ void SimpleExample() {
     // Cut Cabbage
     operations.push_back("e");
     // ... Do The Rest By Yourself !
-}
+}*/
 
-void MakeBurger(GameController& controller) {}
-void MakeCheeseBurger(GameController& controller) {}
-void MakeMegaBurger(GameController& controller) {}
+void MakeBurger(GameController& controller) {
+}
+void MakeCheeseBurger(GameController& controller) {
+    //plate>>bread>>A:normal between cheese and cutting board>>
+    //cheese>>cutting board>>A>>meat>>stove>>A>>delivery
+    MovePointToCounterAndInteract(controller.GetPlayerPosition(),PlatesCounter);
+    MoveCounterToCounterAndInteract(PlatesCounter,BreadCounter);
+    MoveCounterToCounterAndInteract(BreadCounter,UpperNormalCounter);
+    MoveCounterToCounterAndInteract(UpperNormalCounter,CheeseBlockCounter);
+    MoveCounterToCounterAndInteract(CheeseBlockCounter,UpperCuttingCounter);
+    CutIngredient(3);
+    operations.push_back("e");
+    MoveCounterToCounterAndInteract(UpperCuttingCounter,UpperNormalCounter);
+    MoveCounterToCounterAndInteract(UpperNormalCounter,RawPattyCounter);
+    MoveCounterToCounterAndInteract(RawPattyCounter,StoveCounter);
+    MoveCounterToCounterAndInteract(RawPattyCounter,StoveCounter);
+    //wait
+    Wait(60);
+    MoveCounterToCounterAndInteract(StoveCounter,UpperNormalCounter);
+    operations.push_back("e");
+    MoveCounterToCounterAndInteract(UpperNormalCounter,DeliveryCounter);
+}
+void MakeMegaBurger(GameController& controller) {
+    MovePointToCounterAndInteract(controller.GetPlayerPosition(), CabbageCounter);
+    
+    MoveCounterToCounterAndInteract(CabbageCounter, LowerCuttingCounter);
+    CutIngredient(5);
+    operations.push('e');
+    MoveCounterToCounterAndInteract(LowerCuttingCounter, NormalCounter);
+    
+    MoveCounterToCounterAndInteract(NormalCounter, TomatoBlockCounter);
+    
+    MoveCounterToCounterAndInteract(TomatoBlockCounter, LowerCuttingCounter);
+    CutIngredient(5);
+    
+    MoveCounterToCounterAndInteract(LowerCuttingCounter, BreadBlockCounter);
+    
+    MoveCounterToCounterAndInteract(BreadBlockCounter, NormalCounter);
+    
+    MoveCounterToCounterAndInteract(NormalCounter, CheeseBlockCounter);
+    
+    MoveCounterToCounterAndInteract(CheeseBlockCounter, UpperCuttingCounter);
+    CutIngredient(5);
+    
+    MoveCounterToCounterAndInteract(UpperCuttingCounter, RawPattyCounter);
+    
+    MoveCounterToCounterAndInteract(RawPattyCounter, StoveCounter);
+    Wait(20);
+    MoveCounterToCounterAndInteract(StoveCounter, PlatesCounter);
+    
+    MoveCounterToCounterAndInteract(PlatesCounter, StoveCounter);
+    Wait(30);
+    MoveCounterToCounterAndInteract(StoveCounter, CuttingCounter);
+    
+    MoveCounterToCounterAndInteract(CuttingCounter, NormalCounter);
+    
+    MoveCounterToCounterAndInteract(NormalCounter, CuttingCounter);
+    
+    MoveCounterToCounterAndInteract(CuttingCounter, NormalCounter);
+    
+    MoveCounterToCounterAndInteract(NormalCounter, DeliveryCounter);
+
+}
 
 // -- Pipeline Funtions Below -- //
 
@@ -220,7 +319,7 @@ void DefaultSendOperation() {
     if (s == "e") controller.Interact();
     if (s == "f") controller.InteractSpecial();
 }
-
+/*
 void DefaultInitialize() {
     operations = {
         "w", "w", "w", "w", "e", "d", "d", "d", "d", "w", "e", "f", "f", "f", // grab cheese and cut it
@@ -256,3 +355,4 @@ void DefaultInitialize() {
     };
     reverse(operations.begin(), operations.end());
 }
+*/
