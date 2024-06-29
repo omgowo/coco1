@@ -24,6 +24,7 @@ const string RecipeMode = "salad";
 
 // A template GLOBAL VARIABLE vector to store operations
 // Feel free to modify this data structure! (or create your own to use)
+#include <queue>
 queue<char> operations;
 
 // A template map to store the position of each counter
@@ -43,8 +44,11 @@ const map<Counter, pair<int, int>> counterPosition = {
     { UpperCuttingCounter, {0, 14} },
     { LowerCuttingCounter, {8, 14} },
     // There are so many normal counters, this is only one of it
-    { UpperNormalCounter, {8, 20} },
-    { LowerNormalCounter, {8, 12} }
+    { NormalCounter820, {8, 20} },
+    { NormalCounter812, {8, 12} },
+    { NormalCounter813, {8, 13} },
+    { NormalCounter007, {0, 7} },
+    { NormalCounter013, {0, 13} }
 };
 
 const map<Counter, string> counterDirection = {
@@ -62,8 +66,11 @@ const map<Counter, string> counterDirection = {
     { UpperCuttingCounter, "w" },
     { LowerCuttingCounter, "s" },
     // There are so many normal counters, this is only one of it
-    { UpperNormalCounter, "w" },
-    { LowerNormalCounter, "s" }
+    { NormalCounter007, "w" },
+    { NormalCounter013, "w" },
+    { NormalCounter812, "s" },
+    { NormalCounter813, "s" },
+    { NormalCounter820, "s" }
 };
 
 void DefaultInitialize();
@@ -85,7 +92,7 @@ void UserAction::Initialize() {
     // Feel free to modify this function.
     // DefaultInitialize() will make you a MEGABurger!
     cout << "Initializing the game..." << endl;
-    //DefaultInitialize();
+    while(!operation.empty()) operations.pop();
 }
 
 // Main Function of you game logic
@@ -95,27 +102,7 @@ void UserAction::SendOperation() {
     //DefaultSendOperation();
     OMGOWOSendOperationcode();
 }
-void OMGOWOSendOperationcode(){
-    string s = "";
-        if (operations.empty()) {
-            Recipe nextRecipe = GetNextOrder();
-            if(nextRecipe == Salad) MakeSalad();
-            else if(nextRecipe == Burger) MakeBurger();
-            else if(nextRecipe == CheeseBurger) MakeCheeseBurger();
-            else MakeMegaBurger();
-            return;
-        }
 
-        s=operations.front();
-        operations.pop();
-
-        if (s == "w") controller.MoveUp();
-        else if (s == "s") controller.MoveDown();
-        else if (s == "a") controller.MoveLeft();
-        else if (s == "d") controller.MoveRight();
-        else if (s == "e") controller.Interact();
-        else if (s == "f") controller.InteractSpecial();
-}
 
 // -- Moving series functions Below -- //
 
@@ -161,7 +148,7 @@ void MovePointToCounterAndInteract(pair <int,int> from, Counter toCounter){
     operations.push('e');
 }
 
-void Wait(int times, GameController& controller) {
+void Wait(int times) {
     // TODO: Wait for times
     for (int i = 0; i < times; i ++) {
         continue;
@@ -213,8 +200,11 @@ Recipe GetNextOrder() {
 
 // -- Miscallaneous functions Below -- //
 
-void CutIngredient(int times, GameController& controller) {
+void CutIngredient(int times) {
     // TODO: Cut the Ingredient for times
+    for(int i=0;i<times;i++){
+        operations.push('f');
+    }
 }
 
 // -- Miscallaneous functions Above -- //
@@ -235,10 +225,10 @@ void MakeSalad(GameController& controller) {
     operations.push('e');
     // Move To A Normal Counter
     // Put Down Cabbage Slices
-    MoveCounterToCounterAndInteract(CuttingCounter,NormalCounter);
+    MoveCounterToCounterAndInteract(CuttingCounter,NormalCounter813);
     // Move To Tomato Counter
     // Grab Tomato
-    MoveCounterToCounterAndInteract(NormalCounter,TomatoCounter);
+    MoveCounterToCounterAndInteract(NormalCounter813,TomatoCounter);
     // Move To A Cutting Counter
     MoveCounterToCounterAndInteract(TomatoCounter,CuttingCounter);
     // Cut Tomato
@@ -251,68 +241,73 @@ void MakeSalad(GameController& controller) {
     MoveCounterToCounterAndInteract(PlatesCounter,CuttingCounter);
     // Move To A Normal Counter
     // Grab Cabbage Slices
-    MoveCounterToCounterAndInteract(CuttingCounter,NormalCounter);
+    MoveCounterToCounterAndInteract(CuttingCounter,NormalCounter813);
     // Move To Delivery Counter
-    MoveCounterToCounterAndInteract(NormalCounter,DeliveryCounter);
+    MoveCounterToCounterAndInteract(NormalCounter813,DeliveryCounter);
     // Send Order!
 }
 
-/*void SimpleExample() {
-    // The beginning steps of making a salad
 
-    operations.clear();
-    // Move to Cabbage Counter
-    pair<int, int> playerPosition = controller.GetPlayerPosition();
-    MovePointToCounter(playerPosition, CabbageCounter, controller);
-    // Grab Cabbage
-    operations.push_back("e");
-    // Move to Cutting Counter
-    MoveCounterToCounter(CabbageCounter, CuttingCounter, controller);
-    // Cut Cabbage
-    operations.push_back("e");
-    // ... Do The Rest By Yourself !
-}*/
 
 void MakeBurger(GameController& controller) {
+    MovePointToCounterAndInteract(controller.GetPlayerPosition(), BreadBlockCounter);
+
+    MoveCounterToCounterAndInteract(BreadBlockCounter, NormalCounter013);
+
+    MoveCounterToCounterAndInteract(NormalCounter013, RawPattyCounter);
+
+    MoveCounterToCounterAndInteract(RawPattyCounter, StoveCounter);
+    Wait(20);
+    MoveCounterToCounterAndInteract(StoveCounter, PlatesCounter);
+
+    MoveCounterToCounterAndInteract(PlatesCounter, StoveCounter);
+    Wait(30);
+    MoveCounterToCounter(StoveCounter, NormalCounter013);
+
+    MoveCounterToCounter(NormalCounter013, DeliveryCounter);
 }
+
+
 void MakeCheeseBurger(GameController& controller) {
     //plate>>bread>>A:normal between cheese and cutting board>>
     //cheese>>cutting board>>A>>meat>>stove>>A>>delivery
     MovePointToCounterAndInteract(controller.GetPlayerPosition(),PlatesCounter);
     MoveCounterToCounterAndInteract(PlatesCounter,BreadCounter);
-    MoveCounterToCounterAndInteract(BreadCounter,UpperNormalCounter);
-    MoveCounterToCounterAndInteract(UpperNormalCounter,CheeseBlockCounter);
+    MoveCounterToCounterAndInteract(BreadCounter,NormalCounter820);
+    MoveCounterToCounterAndInteract(NormalCounter820,CheeseBlockCounter);
     MoveCounterToCounterAndInteract(CheeseBlockCounter,UpperCuttingCounter);
     CutIngredient(3);
-    operations.push_back("e");
-    MoveCounterToCounterAndInteract(UpperCuttingCounter,UpperNormalCounter);
-    MoveCounterToCounterAndInteract(UpperNormalCounter,RawPattyCounter);
+    operations.push.back("e");
+    MoveCounterToCounterAndInteract(UpperCuttingCounter,NormalCounter820);
+    MoveCounterToCounterAndInteract(NormalCounter820,RawPattyCounter);
     MoveCounterToCounterAndInteract(RawPattyCounter,StoveCounter);
     MoveCounterToCounterAndInteract(RawPattyCounter,StoveCounter);
     //wait
     Wait(60);
-    MoveCounterToCounterAndInteract(StoveCounter,UpperNormalCounter);
-    operations.push_back("e");
-    MoveCounterToCounterAndInteract(UpperNormalCounter,DeliveryCounter);
+    MoveCounterToCounterAndInteract(StoveCounter,NormalCounter820);
+    operations.push.back("e");
+    MoveCounterToCounterAndInteract(NormalCounter820,DeliveryCounter);
 }
+
+
 void MakeMegaBurger(GameController& controller) {
     MovePointToCounterAndInteract(controller.GetPlayerPosition(), CabbageCounter);
     
     MoveCounterToCounterAndInteract(CabbageCounter, LowerCuttingCounter);
     CutIngredient(5);
     operations.push('e');
-    MoveCounterToCounterAndInteract(LowerCuttingCounter, NormalCounter);
+    MoveCounterToCounterAndInteract(LowerCuttingCounter, NormalCounter813);
     
-    MoveCounterToCounterAndInteract(NormalCounter, TomatoBlockCounter);
+    MoveCounterToCounterAndInteract(NormalCounter813, TomatoBlockCounter);
     
     MoveCounterToCounterAndInteract(TomatoBlockCounter, LowerCuttingCounter);
     CutIngredient(5);
     
     MoveCounterToCounterAndInteract(LowerCuttingCounter, BreadBlockCounter);
     
-    MoveCounterToCounterAndInteract(BreadBlockCounter, NormalCounter);
+    MoveCounterToCounterAndInteract(BreadBlockCounter, NormalCounter007);
     
-    MoveCounterToCounterAndInteract(NormalCounter, CheeseBlockCounter);
+    MoveCounterToCounterAndInteract(NormalCounter007, CheeseBlockCounter);
     
     MoveCounterToCounterAndInteract(CheeseBlockCounter, UpperCuttingCounter);
     CutIngredient(5);
@@ -325,34 +320,39 @@ void MakeMegaBurger(GameController& controller) {
     
     MoveCounterToCounterAndInteract(PlatesCounter, StoveCounter);
     Wait(30);
-    MoveCounterToCounterAndInteract(StoveCounter, CuttingCounter);
+    MoveCounterToCounterAndInteract(StoveCounter, UpperCuttingCounter);
     
-    MoveCounterToCounterAndInteract(CuttingCounter, NormalCounter);
+    MoveCounterToCounterAndInteract(UpperCuttingCounter, NormalCounter007);
     
-    MoveCounterToCounterAndInteract(NormalCounter, CuttingCounter);
+    MoveCounterToCounterAndInteract(NormalCounter007, LowerCuttingCounter);
     
-    MoveCounterToCounterAndInteract(CuttingCounter, NormalCounter);
+    MoveCounterToCounterAndInteract(LowerCuttingCounter, NormalCounter813);
     
-    MoveCounterToCounterAndInteract(NormalCounter, DeliveryCounter);
+    MoveCounterToCounterAndInteract(NormalCounter813, DeliveryCounter);
 
+}
+
+void OMGOWOSendOperationcode(){
+    char s = '';
+        if (operations.empty()) {
+            Recipe nextRecipe = GetNextOrder();
+            if(nextRecipe == Salad) MakeSalad();
+            else if(nextRecipe == Burger) MakeBurger();
+            else if(nextRecipe == CheeseBurger) MakeCheeseBurger();
+            else MakeMegaBurger();
+            return;
+        }
+
+        s=operations.front();
+        operations.pop();
+
+        if (s == 'w') controller.MoveUp();
+        else if (s == 's') controller.MoveDown();
+        else if (s == 'a') controller.MoveLeft();
+        else if (s == 'd') controller.MoveRight();
+        else if (s == 'e') controller.Interact();
+        else if (s == 'f') controller.InteractSpecial();
 }
 
 // -- Pipeline Funtions Below -- //
 
-// -- Default Series Function Below -- //
-
-// SendOperation function template, free MEGABurger for you!
-void DefaultSendOperation() {
-    string s = "";
-    if (!operations.empty()) {
-        s = operations.back();
-        operations.pop_back();
-        cout << "Operation: " << s << endl;
-    }
-    if (s == "w") controller.MoveUp();
-    if (s == "s") controller.MoveDown();
-    if (s == "a") controller.MoveLeft();
-    if (s == "d") controller.MoveRight();
-    if (s == "e") controller.Interact();
-    if (s == "f") controller.InteractSpecial();
-}
