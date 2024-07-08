@@ -1,0 +1,1 @@
+/usr/bin/c++  -Wall -fPIC -pipe -std=c++11 -fno-exceptions -O2 -g -DNDEBUG CMakeFiles/server.dir/GameServer.cc.o CMakeFiles/server.dir/GameController.cc.o CMakeFiles/server.dir/UserAction.cc.o -o /app/server   -L/usr/local/lib  -Wl,-rpath,/usr/local/lib -lwfrest 

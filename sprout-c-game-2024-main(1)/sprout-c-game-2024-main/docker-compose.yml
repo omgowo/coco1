@@ -1,0 +1,30 @@
+version: '3'
+
+services:
+  http_server:
+    image: python:latest
+    command: python -m http.server 12345
+    ports:
+      - "12345:12345"  # Adjust port if needed
+    volumes:
+      - ./UnityClient:/app  # Mount the folder with wasm files
+    networks:
+      - app_net
+
+  cpp_server:
+    build:
+      context: ./cserver
+      dockerfile: Dockerfile
+    volumes:
+      - ./cserver:/app  # Mount the folder with C++ files
+    ports:
+      - "8887:8887"
+    stdin_open: true
+    tty: true
+    networks:
+      - app_net
+
+networks:
+  app_net:
+    driver: bridge
+
